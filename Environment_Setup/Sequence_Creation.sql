@@ -25,7 +25,6 @@ CREATE SEQUENCE sales_transaction_seq
     NOCACHE
     NOCYCLE;
 /
- 
 
  CREATE SEQUENCE loyalty_program_seq
     START WITH 1000
@@ -35,7 +34,7 @@ CREATE SEQUENCE sales_transaction_seq
 /
 
 CREATE SEQUENCE reorder_request_seq
-    START WITH 3
+    START WITH 4
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
