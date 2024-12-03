@@ -3,7 +3,7 @@ SET SERVEROUTPUT ON;
 BEGIN
     FOR obj IN (SELECT object_name, object_type FROM user_objects WHERE object_type IN ('PROCEDURE') AND object_name IN (
         'ADD_ORDER','INSERT_CUSTOMER_WITH_LOYALTY','RECOMMEND_RELATED_PRODUCTS', 'UPDATE_ORDER_STATUS', 'GENERATE_SALES_REPORT',
-        'UPDATE_REORDER_REQUEST', 'UPDATE_REORDER_STATUS'
+        'UPDATE_REORDER_REQUEST', 'UPDATE_REORDER_STATUS','UPDATE_CUSTOMER'
     )) LOOP
         BEGIN
             EXECUTE IMMEDIATE 'DROP ' || obj.object_type || ' ' || obj.object_name;
@@ -67,7 +67,8 @@ BEGIN
         SELECT price, stock_quantity, inventory_inventory_id
         INTO v_price, v_available_stock, v_inventory_id
         FROM product
-        WHERE product_id = v_product_id;
+        WHERE product_id = v_product_id
+        FOR UPDATE;
 
         -- Check stock availability
         IF v_quantity > v_available_stock THEN
@@ -406,7 +407,48 @@ EXCEPTION
         RAISE; -- Re-raise the exception for debugging/logging purposes
 END update_reorder_status;
 /
+CREATE OR REPLACE PROCEDURE update_customer(
+    p_customer_id IN customer.customer_id%TYPE,
+    p_first_name IN customer.first_name%TYPE,
+    p_last_name IN customer.last_name%TYPE,
+    p_email IN customer.email%TYPE,
+    p_phone IN customer.phone%TYPE,
+    p_address IN customer.address%TYPE,
+    p_loyalty_program_id IN loyalty_program.loyalty_id%TYPE DEFAULT NULL
+) AS
+BEGIN
+    -- Validate that the customer exists
+    DECLARE
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO v_count
+        FROM customer
+        WHERE customer_id = p_customer_id;
 
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Customer with ID ' || p_customer_id || ' does not exist.');
+        END IF;
+    END;
+
+    -- Update the customer's details
+    UPDATE customer
+    SET first_name = p_first_name,
+        last_name = p_last_name,
+        email = p_email,
+        phone = p_phone,
+        address = p_address,
+        loyalty_program_loyalty_id = p_loyalty_program_id
+    WHERE customer_id = p_customer_id;
+
+    COMMIT; -- Commit the transaction
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; -- Rollback in case of any error
+        RAISE; -- Re-raise the exception for debugging/logging purposes
+END update_customer;
+/
 
 
 

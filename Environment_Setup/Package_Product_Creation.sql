@@ -16,6 +16,11 @@ CREATE OR REPLACE PACKAGE pkg_inventory_management IS
         p_new_quantity IN NUMBER
     );
 
+    PROCEDURE update_product_price(
+        p_product_id IN NUMBER,
+        p_new_price IN NUMBER
+    );
+
     PROCEDURE check_low_stock(
         p_product_id IN NUMBER
     );
@@ -83,6 +88,24 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
 
         COMMIT;
     END update_product_stock;
+
+    PROCEDURE update_product_price(
+        p_product_id IN NUMBER,
+        p_new_price IN NUMBER
+    ) IS
+    BEGIN
+        -- Check if the new price is valid (greater than 0)
+        IF p_new_price <= 0 THEN
+            RAISE_APPLICATION_ERROR(-20004, 'Error: Price must be greater than zero.');
+        END IF;
+
+        -- Update the price of the specified product
+        UPDATE product
+        SET price = p_new_price
+        WHERE product_id = p_product_id;
+
+        COMMIT;
+    END update_product_price;
 
     -- Procedure to check if stock is below the reorder level
     PROCEDURE check_low_stock(
