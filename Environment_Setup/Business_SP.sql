@@ -462,35 +462,54 @@ CREATE OR REPLACE PROCEDURE update_reorder_status(
     p_status IN VARCHAR2,
     p_actual_delivery_date IN DATE
 ) AS
+    v_request_exists NUMBER;
+    v_current_status VARCHAR2(50);
 BEGIN
     -- Validate inputs
     IF p_reorder_request_id <= 0 THEN
         RAISE_APPLICATION_ERROR(-20030, 'Error: Reorder Request ID must be a positive number.');
     END IF;
+    
     IF p_status IS NULL THEN
         RAISE_APPLICATION_ERROR(-20031, 'Error: Status cannot be null.');
     END IF;
+
+    -- Check if the reorder request exists
+    SELECT COUNT(*), MAX(status)
+    INTO v_request_exists, v_current_status
+    FROM reorder_request
+    WHERE reorder_request_id = p_reorder_request_id;
+
+    IF v_request_exists = 0 THEN
+        RAISE_APPLICATION_ERROR(-20032, 'Error: Reorder request with ID ' || p_reorder_request_id || ' does not exist.');
+    END IF;
+
+    -- If the current status is already 'DELIVERED', prevent further updates
+    IF UPPER(v_current_status) = 'DELIVERED' THEN
+        RAISE_APPLICATION_ERROR(-20033, 'Error: This reorder request has already been delivered and cannot be updated.');
+    END IF;
+
     -- Update the reorder request with the new status and actual delivery date
     UPDATE reorder_request
     SET status = p_status,
         actual_delivery_date = p_actual_delivery_date
     WHERE reorder_request_id = p_reorder_request_id;
-    -- Check if any row was updated
-    IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20032, 'Error: No reorder request found with the given ID.');
-    END IF;
-    -- If status is delivered, update product and inventory stock
+
+    -- If status is being set to 'DELIVERED', update product and inventory stock
     IF UPPER(p_status) = 'DELIVERED' THEN
         update_product_and_inventory_stock(p_reorder_request_id);
+        DBMS_OUTPUT.PUT_LINE('Reorder request completed. Product and inventory tables updated.');
     END IF;
-    COMMIT; -- Commit the changes to the database
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Reorder request status updated successfully.');
+
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK; -- Rollback in case of any error
-        RAISE; -- Re-raise the exception for debugging/logging purposes
+        ROLLBACK;
+        RAISE;
 END update_reorder_status;
 /
-
 
 CREATE OR REPLACE PROCEDURE update_customer(
     p_customer_id IN customer.customer_id%TYPE,
