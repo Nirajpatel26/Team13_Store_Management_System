@@ -1,3 +1,4 @@
+SET SERVEROUTPUT ON;
 BEGIN
     APP_ADMIN.add_order(
         p_customer_email => 'riya.sharma@example.com',

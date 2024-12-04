@@ -1,5 +1,6 @@
+SET SERVEROUTPUT ON;
 BEGIN
-    update_customer(
+    APP_ADMIN.update_customer(
         p_customer_id => 7,         -- ID of the customer to update
         p_first_name => 'Vihaan',       -- New first name
         p_last_name => 'Patel',         -- New last name
