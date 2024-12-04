@@ -79,7 +79,8 @@ BEGIN
     JOIN
         order_detail od ON o.order_id = od.order_order_id
     JOIN
-        product p ON od.product_product_id = p.product_id';
+        product p ON od.product_product_id = p.product_id
+    ORDER BY c.customer_id ';
     DBMS_OUTPUT.PUT_LINE('Created view: CUSTOMER_PURCHASE_HISTORY');
 
     -- TOP_SELLING_PRODUCTS
@@ -111,7 +112,7 @@ BEGIN
     GROUP BY
         o.order_date
     ORDER BY
-        o.order_date';
+        o.order_date DESC';
     DBMS_OUTPUT.PUT_LINE('Created view: DAILY_SALES_SUMMARY');
 
     -- SUPPLIER_PRODUCTS
