@@ -1,12 +1,12 @@
 --Insert customer
 BEGIN
-    APP_ADMIN.INSERT_CUSTOMER(1, 'Aarav', 'Mehta', 'aarav.mehta@example.com', 9876543215, '303 Birch St, Hyderabad',1);
-    APP_ADMIN.INSERT_CUSTOMER(2, 'Zara', 'Joshi', 'zara.joshi@example.com', 9876543216, '404 Cedar St, Pune',2);
-    APP_ADMIN.INSERT_CUSTOMER(3, 'Arjun', 'Reddy', 'arjun.reddy@example.com', 9876543217, '505 Walnut St, Ahmedabad',3);
-    APP_ADMIN.INSERT_CUSTOMER(4, 'Ishaan', 'Kapoor', 'ishaan.kapoor@example.com', 9876543218, '606 Chestnut St, Jaipur',4);
-    APP_ADMIN.INSERT_CUSTOMER(5, 'Anaya', 'Malhotra', 'anaya.malhotra@example.com', 9876543219, '707 Spruce St, Lucknow',5);
-    APP_ADMIN.INSERT_CUSTOMER(6, 'Riya', 'Sharma', 'riya.sharma@example.com', 9876543220, '808 Pine St, Mumbai',6);
-    APP_ADMIN.INSERT_CUSTOMER(7, 'Vihaan', 'Patel', 'vihaan.patel@example.com', 9876543221, '909 Oak St, Bangalore',7);
+    APP_ADMIN.INSERT_CUSTOMER(1, 'Aarav', 'Mehta', 'aarav.mehta@gmail.com', 9876543215, '303 Birch St, Hyderabad',1);
+    APP_ADMIN.INSERT_CUSTOMER(2, 'Zara', 'Joshi', 'zara.joshi@yahooo.com', 9876543216, '404 Cedar St, Pune',2);
+    APP_ADMIN.INSERT_CUSTOMER(3, 'Arjun', 'Reddy', 'arjun.reddy@gmail.com', 9876543217, '505 Walnut St, Ahmedabad',3);
+    APP_ADMIN.INSERT_CUSTOMER(4, 'Ishaan', 'Kapoor', 'ishaan.kapoor@yahoo.com', 9876543218, '606 Chestnut St, Jaipur',4);
+    APP_ADMIN.INSERT_CUSTOMER(5, 'Anaya', 'Malhotra', 'anaya.malhotra@outlook.com', 9876543219, '707 Spruce St, Lucknow',5);
+    APP_ADMIN.INSERT_CUSTOMER(6, 'Riya', 'Sharma', 'riya.sharma@gmail.com', 9876543220, '808 Pine St, Mumbai',6);
+    APP_ADMIN.INSERT_CUSTOMER(7, 'Vihaan', 'Patel', 'vihaan.patel@yahoo.com', 9876543221, '909 Oak St, Bangalore',7);
 END;
 /
 -- Insert payment methods
