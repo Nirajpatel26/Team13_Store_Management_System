@@ -268,7 +268,7 @@ BEGIN
         s.supplier_id, 
         s.supplier_name, 
         COUNT(rr.reorder_request_id) as total_requests,
-        AVG(rr.actual_delivery_date - rr.request_date) as avg_delivery_time
+        ROUND(AVG(rr.actual_delivery_date - rr.request_date), 2) as avg_delivery_time
     FROM 
         supplier s
     LEFT JOIN 
@@ -278,7 +278,7 @@ BEGIN
     ORDER BY 
         avg_delivery_time ASC';
     DBMS_OUTPUT.PUT_LINE('Created view: SUPPLIER_PERFORMANCE');
-
+    
     -- CUSTOMER_LIFETIME_VALUE
     EXECUTE IMMEDIATE '
     CREATE OR REPLACE VIEW CUSTOMER_LIFETIME_VALUE AS
