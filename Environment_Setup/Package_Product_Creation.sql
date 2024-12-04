@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE PACKAGE pkg_inventory_management IS
     PROCEDURE insert_product(
         p_product_id IN NUMBER,
@@ -55,46 +54,49 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
     ) IS
         v_error_message VARCHAR2(4000) := '';
     BEGIN
-        -- Check for null or empty values
-        IF p_product_id IS NULL THEN
-            v_error_message := v_error_message || 'Product ID must be provided. ';
+        -- Check for negative product ID
+        IF p_product_id < 0 THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Error: Product ID cannot be negative.');
         END IF;
+
+        -- Check for negative price or zero price (must be at least $1)
+        IF p_price <= 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'Error: Price cannot be negative');
+        END IF;
+
+        -- Check for empty or zero stock quantity
+        IF p_stock_quantity IS NULL OR p_stock_quantity < 0 OR p_stock_quantity <= 0  THEN
+            RAISE_APPLICATION_ERROR(-20003, 'Error: Stock quantity cannot be negative');
+        END IF;
+
+        -- Check for negative reorder level
+        IF p_reorder_level < 0 THEN
+            v_error_message := v_error_message || 'Reorder level cannot be negative. ';
+        END IF;
+
+        -- Check for negative supplier ID
+        IF p_supplier_id < 0 THEN
+            v_error_message := v_error_message || 'Supplier ID cannot be negative. ';
+        END IF;
+
+        -- Check for negative category ID
+        IF p_category_id < 0 THEN
+            v_error_message := v_error_message || 'Category ID cannot be negative. ';
+        END IF;
+
+        -- Check for negative inventory ID
+        IF p_inventory_id < 0 THEN
+            v_error_message := v_error_message || 'Inventory ID cannot be negative. ';
+        END IF;
+
+        -- Check for empty or null product name
         IF p_product_name IS NULL OR TRIM(p_product_name) = '' THEN
             v_error_message := v_error_message || 'Product name must be provided. ';
         END IF;
-        IF p_price IS NULL THEN
-            v_error_message := v_error_message || 'Price must be provided. ';
-        END IF;
-        IF p_stock_quantity IS NULL THEN
-            v_error_message := v_error_message || 'Stock quantity must be provided. ';
-        END IF;
-        IF p_reorder_level IS NULL THEN
-            v_error_message := v_error_message || 'Reorder level must be provided. ';
-        END IF;
-        IF p_supplier_id IS NULL THEN
-            v_error_message := v_error_message || 'Supplier ID must be provided. ';
-        END IF;
-        IF p_category_id IS NULL THEN
-            v_error_message := v_error_message || 'Category ID must be provided. ';
-        END IF;
-        IF p_inventory_id IS NULL THEN
-            v_error_message := v_error_message || 'Inventory ID must be provided. ';
-        END IF;
 
-        -- Raise error if any null or empty values were found
+        -- Raise error if any validation messages were collected
         IF v_error_message != '' THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Error: ' || v_error_message);
-        END IF;
-
-        -- Check for negative values
-        IF p_price < 0 THEN
-            RAISE_APPLICATION_ERROR(-20002, 'Error: Price must be non-negative.');
-        END IF;
-        IF p_stock_quantity < 0 THEN
-            RAISE_APPLICATION_ERROR(-20003, 'Error: Stock quantity must be non-negative.');
-        END IF;
-        IF p_reorder_level < 0 THEN
-            RAISE_APPLICATION_ERROR(-20004, 'Error: Reorder level must be non-negative.');
+            RAISE_APPLICATION_ERROR(-20004, 'Validation Error: ' || v_error_message);
         END IF;
 
         -- Check if supplier exists
@@ -112,7 +114,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
             RAISE_APPLICATION_ERROR(-20007, 'Error: Inventory ID ' || p_inventory_id || ' does not exist.');
         END IF;
 
-        -- If all checks pass, proceed with the insert
+        -- If all validations pass, insert the new product
         INSERT INTO product (
             product_id, product_name, description, price,
             stock_quantity, reorder_level, supplier_supplier_id,
@@ -125,6 +127,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
         );
 
         COMMIT;
+
     EXCEPTION
         WHEN DUP_VAL_ON_INDEX THEN
             RAISE_APPLICATION_ERROR(-20008, 'Error: Product ID ' || p_product_id || ' already exists.');
@@ -187,10 +190,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
             RAISE_APPLICATION_ERROR(-20014, 'An unexpected error occurred: ' || SQLERRM);
     END update_product_stock;
 
-
-
+    -- Procedure to update product price
     PROCEDURE update_product_price(
-        p_product_id IN NUMBER,  -- Keep as VARCHAR2 to preserve leading zeros
+        p_product_id IN NUMBER,
         p_new_price IN NUMBER
     ) IS
         v_product_name VARCHAR2(100);
@@ -204,7 +206,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
             RAISE_APPLICATION_ERROR(-20016, 'Error: New price must be provided.');
         END IF;
 
-        -- Check if the new price is valid (greater than 0)
+        -- Check if the new price is valid
         IF p_new_price <= 0 THEN
             RAISE_APPLICATION_ERROR(-20017, 'Error: Price must be greater than zero.');
         END IF;
@@ -214,33 +216,33 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
             SELECT product_name, price
             INTO v_product_name, v_old_price
             FROM product
-            WHERE TO_CHAR(product_id, 'FM0000') = LPAD(p_product_id, 4, '0');  -- Compare with padded ID
+            WHERE product_id = p_product_id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 RAISE_APPLICATION_ERROR(-20018, 'Error: Product ID ' || p_product_id || ' does not exist.');
         END;
 
+        -- Check if new price is different from old price
+        IF v_old_price = p_new_price THEN
+            DBMS_OUTPUT.PUT_LINE('The new price is the same as the old price. No update performed.');
+            RETURN;
+        END IF;
+
         -- Update the price of the specified product
         UPDATE product
         SET price = p_new_price
-        WHERE TO_CHAR(product_id, 'FM0000') = LPAD(p_product_id, 4, '0');  -- Use padded ID for update
+        WHERE product_id = p_product_id;
 
         COMMIT;
-        
+
         DBMS_OUTPUT.PUT_LINE('Product updated successfully. Product: ' || v_product_name || 
                              ', Old price: ' || v_old_price || ', New price: ' || p_new_price);
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            IF SQLCODE = -2290 THEN
-                RAISE_APPLICATION_ERROR(-20019, 'Error: Invalid price. Check constraints violated.');
-            ELSE
-                RAISE_APPLICATION_ERROR(-20020, 'An unexpected error occurred: ' || SQLERRM);
-            END IF;
+            RAISE_APPLICATION_ERROR(-20020, 'An unexpected error occurred: ' || SQLERRM);
     END update_product_price;
-    
-    
-    
+
     -- Procedure to check if stock is below the reorder level
     PROCEDURE check_low_stock(
         p_product_id IN NUMBER
@@ -254,19 +256,21 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
         END IF;
 
         -- Check if product exists
-        IF NOT id_exists(p_product_id, 'product', 'product_id') THEN
-            RAISE_APPLICATION_ERROR(-20021, 'Error: Product ID ' || p_product_id || ' does not exist.');
-        END IF;
+        BEGIN
+            SELECT stock_quantity, reorder_level
+            INTO v_stock_quantity, v_reorder_level
+            FROM product
+            WHERE product_id = p_product_id;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                RAISE_APPLICATION_ERROR(-20021, 'Error: Product ID ' || p_product_id || ' does not exist.');
+        END;
 
-        SELECT stock_quantity, reorder_level
-        INTO v_stock_quantity, v_reorder_level
-        FROM product
-        WHERE product_id = p_product_id;
-
+        -- Check stock against reorder level
         IF v_stock_quantity <= v_reorder_level THEN
-            DBMS_OUTPUT.PUT_LINE('Product ' || p_product_id || ' is low on stock. Reorder is needed.');
+            DBMS_OUTPUT.PUT_LINE('Alert: Product ID ' || p_product_id || ' is low on stock. Current stock: ' || v_stock_quantity || ', Reorder level: ' || v_reorder_level);
         ELSE
-            DBMS_OUTPUT.PUT_LINE('Product ' || p_product_id || ' stock is sufficient.');
+            DBMS_OUTPUT.PUT_LINE('Product ID ' || p_product_id || ' stock is sufficient.');
         END IF;
     EXCEPTION
         WHEN OTHERS THEN
@@ -275,5 +279,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_inventory_management IS
 
 END pkg_inventory_management;
 /
+
+
+
+
 
 SHOW ERRORS PACKAGE pkg_inventory_management;
