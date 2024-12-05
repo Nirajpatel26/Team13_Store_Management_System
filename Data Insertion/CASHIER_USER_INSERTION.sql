@@ -1,12 +1,12 @@
 --Insert customer
 BEGIN
-    APP_ADMIN.INSERT_CUSTOMER(1, 'Aarav', 'Mehta', 'aarav.mehta@example.com', 9876543215, '303 Birch St, Hyderabad',1);
-    APP_ADMIN.INSERT_CUSTOMER(2, 'Zara', 'Joshi', 'zara.joshi@example.com', 9876543216, '404 Cedar St, Pune',2);
-    APP_ADMIN.INSERT_CUSTOMER(3, 'Arjun', 'Reddy', 'arjun.reddy@example.com', 9876543217, '505 Walnut St, Ahmedabad',3);
-    APP_ADMIN.INSERT_CUSTOMER(4, 'Ishaan', 'Kapoor', 'ishaan.kapoor@example.com', 9876543218, '606 Chestnut St, Jaipur',4);
-    APP_ADMIN.INSERT_CUSTOMER(5, 'Anaya', 'Malhotra', 'anaya.malhotra@example.com', 9876543219, '707 Spruce St, Lucknow',5);
-    APP_ADMIN.INSERT_CUSTOMER(6, 'Riya', 'Sharma', 'riya.sharma@example.com', 9876543220, '808 Pine St, Mumbai',6);
-    APP_ADMIN.INSERT_CUSTOMER(7, 'Vihaan', 'Patel', 'vihaan.patel@example.com', 9876543221, '909 Oak St, Bangalore',7);
+    APP_ADMIN.INSERT_CUSTOMER(1, 'Aarav', 'Mehta', 'aarav.mehta@gmail.com', 9876543215, '303 Birch St, Hyderabad',1);
+    APP_ADMIN.INSERT_CUSTOMER(2, 'Zara', 'Joshi', 'zara.joshi@yahooo.com', 9876543216, '404 Cedar St, Pune',2);
+    APP_ADMIN.INSERT_CUSTOMER(3, 'Arjun', 'Reddy', 'arjun.reddy@gmail.com', 9876543217, '505 Walnut St, Ahmedabad',3);
+    APP_ADMIN.INSERT_CUSTOMER(4, 'Ishaan', 'Kapoor', 'ishaan.kapoor@yahoo.com', 9876543218, '606 Chestnut St, Jaipur',4);
+    APP_ADMIN.INSERT_CUSTOMER(5, 'Anaya', 'Malhotra', 'anaya.malhotra@outlook.com', 9876543219, '707 Spruce St, Lucknow',5);
+    APP_ADMIN.INSERT_CUSTOMER(6, 'Riya', 'Sharma', 'riya.sharma@gmail.com', 9876543220, '808 Pine St, Mumbai',6);
+    APP_ADMIN.INSERT_CUSTOMER(7, 'Vihaan', 'Patel', 'vihaan.patel@yahoo.com', 9876543221, '909 Oak St, Bangalore',7);
 END;
 /
 -- Insert payment methods
@@ -15,19 +15,20 @@ BEGIN
     APP_ADMIN.INSERT_PAYMENT_METHOD(2, 'Debit Card');
     APP_ADMIN.INSERT_PAYMENT_METHOD(3, 'Cash');
     APP_ADMIN.INSERT_PAYMENT_METHOD(4, 'UPI');
-    APP_ADMIN.INSERT_PAYMENT_METHOD(5, 'Net Banking');
+    APP_ADMIN.INSERT_PAYMENT_METHOD(5, 'Cash');
+    APP_ADMIN.INSERT_PAYMENT_METHOD(6, 'Credit Card');
+
+    
 END;
 /
 -- Insert orders with different dates
 BEGIN
-    APP_ADMIN.INSERT_ORDER(1, TO_DATE('2024-01-15', 'YYYY-MM-DD'), 2500.00, 'Completed', 1);
-    APP_ADMIN.INSERT_ORDER(2, TO_DATE('2024-02-20', 'YYYY-MM-DD'), 1800.00, 'Completed', 2);
-    APP_ADMIN.INSERT_ORDER(3, TO_DATE('2024-03-10', 'YYYY-MM-DD'), 3200.00, 'Completed', 3);
-    APP_ADMIN.INSERT_ORDER(4, TO_DATE('2024-04-05', 'YYYY-MM-DD'), 1500.00, 'Completed', 4);
-    APP_ADMIN.INSERT_ORDER(5, TO_DATE('2024-05-12', 'YYYY-MM-DD'), 2800.00, 'Completed', 5);
-    APP_ADMIN.INSERT_ORDER(6, TO_DATE('2024-06-18', 'YYYY-MM-DD'), 2000.00, 'Processing', 6);
-    APP_ADMIN.INSERT_ORDER(7, TO_DATE('2024-07-22', 'YYYY-MM-DD'), 3500.00, 'Pending', 7);
-    APP_ADMIN.INSERT_ORDER(8, TO_DATE('2024-11-07', 'YYYY-MM-DD'), 1200.00, 'Pending', 1);
+    APP_ADMIN.INSERT_ORDER(1, TO_DATE('2024-01-15', 'YYYY-MM-DD'), 475.00, 'Completed', 1);
+    APP_ADMIN.INSERT_ORDER(2, TO_DATE('2024-02-20', 'YYYY-MM-DD'), 395.00, 'Completed', 2);
+    APP_ADMIN.INSERT_ORDER(3, TO_DATE('2024-03-10', 'YYYY-MM-DD'), 485.00, 'Completed', 3);
+    APP_ADMIN.INSERT_ORDER(4, TO_DATE('2024-04-05', 'YYYY-MM-DD'), 475.00, 'Completed', 4);
+    APP_ADMIN.INSERT_ORDER(5, TO_DATE('2024-05-12', 'YYYY-MM-DD'), 395.00, 'Completed', 5);
+    APP_ADMIN.INSERT_ORDER(6, TO_DATE('2024-11-07', 'YYYY-MM-DD'), 1200.00, 'Proccesing', 1);
 END;
 /
 
@@ -48,8 +49,8 @@ BEGIN
     APP_ADMIN.INSERT_ORDER_DETAIL(13, 2, 80.00, 5, 4);
     APP_ADMIN.INSERT_ORDER_DETAIL(14, 1, 40.00, 5, 5);
     APP_ADMIN.INSERT_ORDER_DETAIL(15, 3, 65.00, 5, 6);
-    APP_ADMIN.INSERT_ORDER_DETAIL(16, 2, 300.00, 8, 1);
-    APP_ADMIN.INSERT_ORDER_DETAIL(17, 1, 600.00, 8, 3);
+    APP_ADMIN.INSERT_ORDER_DETAIL(16, 2, 300.00, 6, 1);
+    APP_ADMIN.INSERT_ORDER_DETAIL(17, 1, 600.00, 6, 3);
 END;
 /
 
@@ -59,6 +60,7 @@ BEGIN
     APP_ADMIN.INSERT_SALES_TRANSACTION(3, TO_DATE('2024-03-10', 'YYYY-MM-DD'), 3, 3, 3);
     APP_ADMIN.INSERT_SALES_TRANSACTION(4, TO_DATE('2024-04-05', 'YYYY-MM-DD'), 4, 4, 4);
     APP_ADMIN.INSERT_SALES_TRANSACTION(5, TO_DATE('2024-05-12', 'YYYY-MM-DD'), 5, 5, 5);
+    APP_ADMIN.INSERT_SALES_TRANSACTION(6, TO_DATE('2024-11-07', 'YYYY-MM-DD'), 6, 6, 1);
 END;
 /
 

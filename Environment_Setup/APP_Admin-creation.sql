@@ -50,6 +50,9 @@ BEGIN
 
     -- Grant additional system privileges that might be needed
     EXECUTE IMMEDIATE 'GRANT CREATE ANY PROCEDURE, DROP ANY PROCEDURE TO APP_ADMIN WITH ADMIN OPTION';
+    
+    --Grant priveleges to sequence
+     EXECUTE IMMEDIATE 'GRANT CREATE SEQUENCE TO APP_ADMIN ';
 
     -- Allocate unlimited quota on DATA tablespace
     EXECUTE IMMEDIATE 'ALTER USER APP_ADMIN QUOTA UNLIMITED ON DATA';

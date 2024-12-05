@@ -11,7 +11,12 @@ BEGIN
         'LOW_STOCK_ALERT',
         'SALES_TRENDS',
         'ALL_INVOICE',
-        'LATEST_CUSTOMER_INVOICE'
+        'LATEST_CUSTOMER_INVOICE',
+        'SALES_PERFORMANCE',
+        'SUPPLIER_PERFORMANCE',
+        'CUSTOMER_LIFETIME_VALUE',
+        'CATEGORY_PERFORMANCE',
+        'SEASONAL_SALES_TRENDS'
     ))
     LOOP
         BEGIN
@@ -27,7 +32,6 @@ END;
 -- Create Views
 BEGIN
     -- INVENTORY_OVERVIEW
--- INVENTORY_OVERVIEW
     EXECUTE IMMEDIATE '
     CREATE OR REPLACE VIEW INVENTORY_OVERVIEW AS
     SELECT 
@@ -56,10 +60,6 @@ BEGIN
         i.inventory_id, i.stock_level';
     DBMS_OUTPUT.PUT_LINE('Created view: INVENTORY_OVERVIEW');
 
-
-
-
-
     -- CUSTOMER_PURCHASE_HISTORY
     EXECUTE IMMEDIATE '
     CREATE OR REPLACE VIEW CUSTOMER_PURCHASE_HISTORY AS
@@ -79,7 +79,8 @@ BEGIN
     JOIN
         order_detail od ON o.order_id = od.order_order_id
     JOIN
-        product p ON od.product_product_id = p.product_id';
+        product p ON od.product_product_id = p.product_id
+    ORDER BY c.customer_id ';
     DBMS_OUTPUT.PUT_LINE('Created view: CUSTOMER_PURCHASE_HISTORY');
 
     -- TOP_SELLING_PRODUCTS
@@ -111,7 +112,7 @@ BEGIN
     GROUP BY
         o.order_date
     ORDER BY
-        o.order_date';
+        o.order_date DESC';
     DBMS_OUTPUT.PUT_LINE('Created view: DAILY_SALES_SUMMARY');
 
     -- SUPPLIER_PRODUCTS
@@ -204,6 +205,7 @@ BEGIN
         o.order_id, item_number';
     DBMS_OUTPUT.PUT_LINE('Created view: ALL_INVOICE');
 
+    -- LATEST_CUSTOMER_INVOICE
     EXECUTE IMMEDIATE '
     CREATE OR REPLACE VIEW LATEST_CUSTOMER_INVOICE AS
     WITH latest_order AS (
@@ -238,9 +240,99 @@ BEGIN
     ORDER BY
         p.product_id';
     DBMS_OUTPUT.PUT_LINE('Created view: LATEST_CUSTOMER_INVOICE');
-    DBMS_OUTPUT.PUT_LINE('All views created successfully.');
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error creating views: ' || SQLERRM);
+
+    -- SALES_PERFORMANCE
+    EXECUTE IMMEDIATE '
+    CREATE OR REPLACE VIEW SALES_PERFORMANCE AS
+    SELECT 
+        p.product_id, 
+        p.product_name, 
+        SUM(od.quantity) as total_sold,
+        SUM(od.quantity * od.price_at_purchase) as total_revenue
+    FROM 
+        product p
+    JOIN 
+        order_detail od ON p.product_id = od.product_product_id
+    JOIN 
+        orders o ON od.order_order_id = o.order_id
+    GROUP BY 
+        p.product_id, p.product_name
+    ORDER BY 
+        total_revenue DESC';
+    DBMS_OUTPUT.PUT_LINE('Created view: SALES_PERFORMANCE');
+
+    -- SUPPLIER_PERFORMANCE
+    EXECUTE IMMEDIATE '
+    CREATE OR REPLACE VIEW SUPPLIER_PERFORMANCE AS
+    SELECT 
+        s.supplier_id, 
+        s.supplier_name, 
+        COUNT(rr.reorder_request_id) as total_requests,
+        ROUND(AVG(rr.actual_delivery_date - rr.request_date), 2) as avg_delivery_time
+    FROM 
+        supplier s
+    LEFT JOIN 
+        reorder_request rr ON s.supplier_id = rr.supplier_supplier_id
+    GROUP BY 
+        s.supplier_id, s.supplier_name
+    ORDER BY 
+        avg_delivery_time ASC';
+    DBMS_OUTPUT.PUT_LINE('Created view: SUPPLIER_PERFORMANCE');
+    
+    -- CUSTOMER_LIFETIME_VALUE
+    EXECUTE IMMEDIATE '
+    CREATE OR REPLACE VIEW CUSTOMER_LIFETIME_VALUE AS
+    SELECT 
+        c.customer_id,
+        c.first_name || '' '' || c.last_name AS customer_name,
+        COUNT(DISTINCT o.order_id) AS total_orders,
+        SUM(o.total_amount) AS total_spend
+    FROM 
+        customer c
+    JOIN 
+        orders o ON c.customer_id = o.customer_customer_id
+    GROUP BY 
+        c.customer_id, c.first_name, c.last_name
+    ORDER BY 
+        total_spend DESC';
+    DBMS_OUTPUT.PUT_LINE('Created view: CUSTOMER_LIFETIME_VALUE');
+
+    -- CATEGORY_PERFORMANCE
+    EXECUTE IMMEDIATE '
+    CREATE OR REPLACE VIEW CATEGORY_PERFORMANCE AS
+    SELECT 
+        c.category_id,
+        c.category_name,
+        COUNT(DISTINCT od.order_order_id) AS total_orders,
+        SUM(od.quantity) AS total_quantity_sold,
+        SUM(od.quantity * od.price_at_purchase) AS total_revenue
+    FROM 
+        category c
+    JOIN 
+        product p ON c.category_id = p.category_category_id
+    JOIN 
+        order_detail od ON p.product_id = od.product_product_id
+    GROUP BY 
+        c.category_id, c.category_name
+    ORDER BY 
+        total_revenue DESC';
+    DBMS_OUTPUT.PUT_LINE('Created view: CATEGORY_PERFORMANCE');
+
+    -- SEASONAL_SALES_TRENDS
+    EXECUTE IMMEDIATE '
+    CREATE OR REPLACE VIEW SEASONAL_SALES_TRENDS AS
+    SELECT 
+        EXTRACT(YEAR FROM o.order_date) AS year,
+        EXTRACT(MONTH FROM o.order_date) AS month,
+        COUNT(o.order_id) AS total_orders,
+        SUM(o.total_amount) AS total_revenue
+    FROM 
+        orders o
+    GROUP BY 
+        EXTRACT(YEAR FROM o.order_date),
+        EXTRACT(MONTH FROM o.order_date)
+    ORDER BY 
+        year, month';
+    DBMS_OUTPUT.PUT_LINE('Created view: SEASONAL_SALES_TRENDS');
 END;
 /

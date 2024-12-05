@@ -11,18 +11,18 @@ END;
 /
 -- Insert inventory
 BEGIN
-    APP_ADMIN.INSERT_INVENTORY(1, 500, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
-    APP_ADMIN.INSERT_INVENTORY(2, 300, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
-    APP_ADMIN.INSERT_INVENTORY(3, 200, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
+    APP_ADMIN.INSERT_INVENTORY(1, 830, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
+    APP_ADMIN.INSERT_INVENTORY(2, 800, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
+    APP_ADMIN.INSERT_INVENTORY(3, 730, TO_DATE('2024-11-05', 'YYYY-MM-DD'));
 END;
 /
 
 BEGIN
-    APP_ADMIN.INSERT_SUPPLIER(1, 'Sharma Grains Ltd.', 'Amit Sharma', 9876543220, 'amit.sharma@example.com', '789 Rice St, Punjab');
-    APP_ADMIN.INSERT_SUPPLIER(2, 'Patel Flour Mills', 'Neha Patel', 9876543221, 'neha.patel@example.com', '101 Wheat Rd, Gujarat');
-    APP_ADMIN.INSERT_SUPPLIER(3, 'Gupta Tea Traders', 'Rahul Gupta', 9876543222, 'rahul.gupta@example.com', '202 Tea Garden, Assam');
-    APP_ADMIN.INSERT_SUPPLIER(4, 'Singh Spice Co.', 'Harpreet Singh', 9876543223, 'harpreet.singh@example.com', '303 Spice Market, Rajasthan');
-    APP_ADMIN.INSERT_SUPPLIER(5, 'Verma Dairy Products', 'Anjali Verma', 9876543224, 'anjali.verma@example.com', '404 Milk Colony, Haryana');
+    APP_ADMIN.INSERT_SUPPLIER(1, 'Sharma Grains Ltd.', 'Amit Sharma', 9876543220, 'amit.sharma@gmail.com', '789 Rice St, Punjab');
+    APP_ADMIN.INSERT_SUPPLIER(2, 'Patel Flour Mills', 'Neha Patel', 9876543221, 'neha.patel@yahoo.com', '101 Wheat Rd, Gujarat');
+    APP_ADMIN.INSERT_SUPPLIER(3, 'Gupta Tea Traders', 'Rahul Gupta', 9876543222, 'rahul.gupta@gmail.com', '202 Tea Garden, Assam');
+    APP_ADMIN.INSERT_SUPPLIER(4, 'Singh Spice Co.', 'Harpreet Singh', 9876543223, 'harpreet.singh@outlook.com', '303 Spice Market, Rajasthan');
+    APP_ADMIN.INSERT_SUPPLIER(5, 'Verma Dairy Products', 'Anjali Verma', 9876543224, 'anjali.verma@yahoo.com', '404 Milk Colony, Haryana');
 END;
 /
 -- Insert products
@@ -41,9 +41,9 @@ END;
 
 -- Insert reorder requests
 BEGIN
-    APP_ADMIN.INSERT_REORDER_REQUEST(1, 200, TO_DATE('2024-07-15', 'YYYY-MM-DD'), TO_DATE('2024-07-22', 'YYYY-MM-DD'), NULL, 'Pending', 1, 1, 1);
-    APP_ADMIN.INSERT_REORDER_REQUEST(2, 150, TO_DATE('2024-07-16', 'YYYY-MM-DD'), TO_DATE('2024-07-23', 'YYYY-MM-DD'), NULL, 'Approved', 2, 2, 2);
-    APP_ADMIN.INSERT_REORDER_REQUEST(3, 100, TO_DATE('2024-07-17', 'YYYY-MM-DD'), TO_DATE('2024-07-24', 'YYYY-MM-DD'), NULL, 'Delivered', 3, 3, 3);
+    APP_ADMIN.INSERT_REORDER_REQUEST(1, 200, TO_DATE('2024-07-15', 'YYYY-MM-DD'), TO_DATE('2024-07-22', 'YYYY-MM-DD'), TO_DATE('2024-07-24', 'YYYY-MM-DD'), 'Pending', 1, 1, 1);
+    APP_ADMIN.INSERT_REORDER_REQUEST(2, 150, TO_DATE('2024-07-16', 'YYYY-MM-DD'), TO_DATE('2024-07-23', 'YYYY-MM-DD'), TO_DATE('2024-07-27', 'YYYY-MM-DD'), 'Approved', 2, 2, 2);
+    APP_ADMIN.INSERT_REORDER_REQUEST(3, 100, TO_DATE('2024-07-17', 'YYYY-MM-DD'), TO_DATE('2024-07-24', 'YYYY-MM-DD'), TO_DATE('2024-07-29', 'YYYY-MM-DD'), 'Delivered', 3, 3, 3);
     
 END;
 /

@@ -94,8 +94,7 @@ CREATE TABLE orders (
 CREATE TABLE pay_method (
     payment_id   INTEGER NOT NULL,
     payment_type VARCHAR2(50) NOT NULL,
-    CONSTRAINT pay_method_pk PRIMARY KEY (payment_id),
-    CONSTRAINT pay_method_payment_type_un UNIQUE (payment_type)
+    CONSTRAINT pay_method_pk PRIMARY KEY (payment_id)
 );
 
 
