@@ -3,7 +3,7 @@ SET SERVEROUTPUT ON;
 BEGIN
     FOR obj IN (SELECT object_name, object_type FROM user_objects WHERE object_type IN ('PROCEDURE') AND object_name IN (
         'ADD_ORDER','INSERT_CUSTOMER_WITH_LOYALTY','RECOMMEND_RELATED_PRODUCTS', 'UPDATE_ORDER_STATUS', 'GENERATE_SALES_REPORT',
-        'UPDATE_REORDER_REQUEST','UPDATE_PRODUCT_AND_INVENTORY_STOCK', 'UPDATE_REORDER_STATUS','UPDATE_CUSTOMER'
+        'UPDATE_REORDER_REQUEST','UPDATE_PRODUCT_AND_INVENTORY_STOCK', 'UPDATE_REORDER_STATUS','UPDATE_CUSTOMER','DELETE_ORDER'
     )) LOOP
         BEGIN
             EXECUTE IMMEDIATE 'DROP ' || obj.object_type || ' ' || obj.object_name;
@@ -636,4 +636,80 @@ EXCEPTION
         ROLLBACK;
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END update_customer;
+/
+
+
+CREATE OR REPLACE PROCEDURE delete_order(
+    p_order_id IN NUMBER
+) AS
+    v_product_id NUMBER;
+    v_quantity NUMBER;
+    v_inventory_id NUMBER;
+    v_payment_id NUMBER;
+    v_order_exists NUMBER;
+BEGIN
+    -- Validate that the order exists
+    SELECT COUNT(1) 
+    INTO v_order_exists
+    FROM orders 
+    WHERE order_id = p_order_id;
+ 
+    IF v_order_exists = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Error: Order with ID ' || p_order_id || ' does not exist.');
+    END IF;
+ 
+    -- Step 1: Retrieve payment method ID before deleting sales transaction
+    BEGIN
+        SELECT pay_method_payment_id INTO v_payment_id 
+        FROM sales_transaction 
+        WHERE order_order_id = p_order_id;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            v_payment_id := NULL;
+    END;
+
+    -- Step 2: Process each product in the order details to restore stock and inventory levels
+    FOR product_rec IN (
+        SELECT od.product_product_id AS product_id,
+               od.quantity AS quantity,
+               p.inventory_inventory_id AS inventory_id
+        FROM order_detail od
+        JOIN product p ON od.product_product_id = p.product_id
+        WHERE od.order_order_id = p_order_id
+    ) LOOP
+        UPDATE product
+        SET stock_quantity = stock_quantity + product_rec.quantity
+        WHERE product_id = product_rec.product_id;
+ 
+        UPDATE inventory
+        SET stock_level = stock_level + product_rec.quantity,
+            last_updated = SYSDATE
+        WHERE inventory_id = product_rec.inventory_id;
+    END LOOP;
+ 
+    -- Step 3: Delete from order_detail table
+    DELETE FROM order_detail WHERE order_order_id = p_order_id;
+ 
+    -- Step 4: Delete from sales_transaction table
+    DELETE FROM sales_transaction WHERE order_order_id = p_order_id;
+ 
+    -- Step 5: Remove payment method if found
+    IF v_payment_id IS NOT NULL THEN
+        DELETE FROM pay_method WHERE payment_id = v_payment_id;
+        DBMS_OUTPUT.PUT_LINE('Payment method with ID ' || v_payment_id || ' deleted.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No payment method found for Order ID ' || p_order_id);
+    END IF;
+ 
+    -- Step 6: Delete the order itself
+    DELETE FROM orders WHERE order_id = p_order_id;
+ 
+    COMMIT;
+ 
+    DBMS_OUTPUT.PUT_LINE('Order with ID ' || p_order_id || ' deleted successfully.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM);
+        ROLLBACK;
+END delete_order;
 /
